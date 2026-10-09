@@ -82,8 +82,8 @@ In the horizontal layout, `ctrl+x tab` moves the focus to the bars: the ring sta
 
 | Tick | Meaning |
 | --- | --- |
-| `━` `┃` | The prompt you are reading |
-| `─` `│` | Any other prompt |
+| `━` `▌` | The prompt you are reading |
+| `─` `▎` | Any other prompt |
 | `┄` `┆` | A prompt Claude Code refused to scroll to; `next` and `prev` skip it |
 
 ## How it works

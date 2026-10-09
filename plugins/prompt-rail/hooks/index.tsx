@@ -133,7 +133,9 @@ const oneLine = (text: string, width: number) => {
 // A stacked rail reads rows apart; a row of ticks needs upright bars to. A
 // dotted one marks a prompt the transcript does not draw, so a jump fails.
 export const tick = (isCurrent: boolean, isUnreachable = false) => (isCurrent ? '━' : isUnreachable ? '┄' : '─')
-export const bar = (isCurrent: boolean, isUnreachable = false) => (isCurrent ? '┃' : isUnreachable ? '┆' : '│')
+// Local change (not upstream): block bars, a quarter and a half cell wide, so
+// the one being read stands out more than a heavy line does beside a light one.
+export const bar = (isCurrent: boolean, isUnreachable = false) => (isCurrent ? '▌' : isUnreachable ? '┆' : '▎')
 
 // Record what a jump to `id` answered: a landing makes it reachable, a refusal
 // for want of a drawn row unreachable, any other refusal says nothing. True

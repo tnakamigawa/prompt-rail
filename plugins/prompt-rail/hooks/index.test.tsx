@@ -101,7 +101,7 @@ test('/prompt-rail horizontal draws a text line over one row of bars, heavy wher
   await $.command.run({ command: 'prompt-rail', args: 'horizontal' })
   const band = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'AbovePrompt', props: BAND })
   // One bar per prompt, the one on screen heavy.
-  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['│', '┃'])
+  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['▎', '▌'])
   // The text line, above the bars, shows the prompt on screen until a bar is hovered.
   const drawn = await band.findAll({})
   const line = drawn.findIndex((node: any) => node.type === 'Text' && /^#2 second prompt$/.test(String(node.text)))
@@ -127,7 +127,7 @@ test('with no prompt on screen the text line shows the newest one and no bar is 
   const band = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'AbovePrompt', props: BAND })
   // An empty line reads as a broken rail; the heavy bar still means "being read".
   expect(await band.find({ type: 'Text', text: /^#2 second prompt$/ })).toBeDefined()
-  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['│', '│'])
+  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['▎', '▎'])
 })
 
 test('the horizontal band rings its bars, starting on the one being read, and shows the ringed card for a while', async ($, on) => {
@@ -175,7 +175,7 @@ test('the desktop band reveals a hovered card on a line with nothing beneath it,
   expect(label).toBeGreaterThan(drawn.findIndex((node: any) => node.type === 'Button'))
   // The desktop rings a bar of its own accord beside the hovered one: no ring at rest.
   expect((await band.findAll({ type: 'Button' })).map(b => b.props.autoFocus)).toEqual([undefined, undefined])
-  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['│', '┃'])
+  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['▎', '▌'])
 })
 
 test('on the desktop a ringed bar paints no card over the line a hovered one reveals', async ($, on) => {
@@ -258,7 +258,7 @@ test('with several prompts on screen only the topmost one is heavy', async ($, o
   await $.command.run({ command: 'prompt-rail', args: 'horizontal' })
   const band = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'AbovePrompt', props: BAND })
   // m2 and m3 both show; m2 is the one being read.
-  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['│', '┃', '│'])
+  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['▎', '▌', '▎'])
   expect(await band.find({ type: 'Text', text: /^#2 second prompt$/ })).toBeDefined()
 })
 
@@ -272,10 +272,10 @@ test('a turn that ends leaves the newest prompt as the one being read, whatever 
   const band = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'AbovePrompt', props: BAND })
   const bars = async () => (await band.findAll({ type: 'Button' })).map(b => b.props.label)
   // Only m2 said it is on screen: the rail reads the second prompt.
-  expect(await bars()).toEqual(['│', '┃', '│'])
+  expect(await bars()).toEqual(['▎', '▌', '▎'])
   await $.turn.complete({ answer: 'done', durationMs: 1000, isAborted: false, turnId: 't1', reason: 'answer' })
   await band.redraw(BAND)
-  expect(await bars()).toEqual(['│', '│', '┃'])
+  expect(await bars()).toEqual(['▎', '▎', '▌'])
 })
 
 // A transcript JSONL from rows given in order; each row's parent is the one
@@ -654,7 +654,7 @@ test('a prompt row on screen under a derived id places the reader under that pro
   await $.command.run({ command: 'prompt-rail', args: 'horizontal' })
   await drawSplit($, 'UserMessage', SPLIT_IDS.firstRow, { first: 0, last: 1, of: 2 })
   const band = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'AbovePrompt', props: BAND })
-  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['┃', '│'])
+  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['▌', '▎'])
 })
 
 test('a reply row on screen under a derived id places the reader under its prompt', async ($, on) => {
@@ -663,7 +663,7 @@ test('a reply row on screen under a derived id places the reader under its promp
   await $.command.run({ command: 'prompt-rail', args: 'horizontal' })
   await drawSplit($, 'AssistantMessage', SPLIT_IDS.replyRow, { first: 0, last: 1, of: 2 })
   const band = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'AbovePrompt', props: BAND })
-  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['┃', '│'])
+  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['▌', '▎'])
 })
 
 test('a jump to a stored prompt scrolls to the id its row was drawn under', () => {
@@ -801,7 +801,7 @@ test('a prompt delivered into the running turn is listed once and read on its ow
   await drawRow($, 'a1', 'mid', { first: 0, last: 1, of: 2 })
   expect(await railLabels($)).toEqual(['first', 'mid'])
   const band = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'AbovePrompt', props: BAND })
-  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['│', '┃'])
+  expect((await band.findAll({ type: 'Button' })).map(b => b.props.label)).toEqual(['▎', '▌'])
 })
 
 // A prompt delivered into the running turn: its queue rows around the
@@ -1003,7 +1003,7 @@ test('a jump that lands makes the prompt reachable again', () => {
 
 test('an unreachable prompt is drawn with a dotted tick and bar, unless being read', () => {
   expect([tick(false), tick(true), tick(false, true), tick(true, true)]).toEqual(['─', '━', '┄', '━'])
-  expect([bar(false), bar(true), bar(false, true), bar(true, true)]).toEqual(['│', '┃', '┆', '┃'])
+  expect([bar(false), bar(true), bar(false, true), bar(true, true)]).toEqual(['▎', '▌', '┆', '▌'])
 })
 
 test('an unchanged transcript is not read again when a turn ends', async ($, on) => {
@@ -1046,7 +1046,7 @@ test('a scroll redraws the rail only when the prompt being read changes, and nev
   const u1 = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'UserMessage', requestId: 'u1', props: prompt('first stored prompt', shown) })
   const u2 = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'UserMessage', requestId: 'u2', props: prompt('<div> why does this overflow?', shown) })
   const band = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'AbovePrompt', props: BAND })
-  const heavy = async () => (await band.findAll({ type: 'Button' })).map((b: any) => b.props.label).indexOf('┃')
+  const heavy = async () => (await band.findAll({ type: 'Button' })).map((b: any) => b.props.label).indexOf('▌')
   await clock.settle()
   expect(await heavy()).toBe(0)
   const before = { invalidations: disk.invalidations, railRedraws: disk.railRedraws }
@@ -1678,7 +1678,7 @@ test('a scroll that brings a whole row to the top keeps the reader under it, not
   await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'UserMessage', requestId: 'u4', props: prompt('continue', { first: 0, last: 1, of: 2 }) })
   const tool = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'ToolUse', requestId: 'toolu_running', props: runningTool({ first: 0, last: 1, of: 5 }) })
   const band = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'AbovePrompt', props: BAND })
-  const heavy = async () => (await band.findAll({ type: 'Button' })).map((b: any) => b.props.label).indexOf('┃')
+  const heavy = async () => (await band.findAll({ type: 'Button' })).map((b: any) => b.props.label).indexOf('▌')
   await clock.settle()
   expect(await heavy()).toBe(2)
   await quiet()
@@ -1694,7 +1694,7 @@ test('a running tool row first drawn at the bottom of the viewport does not take
   const clock = await runFifth($, on)
   await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'UserMessage', requestId: 'u4', props: prompt('continue', { first: 1, last: 1, of: 2 }) })
   const band = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'AbovePrompt', props: BAND })
-  const heavy = async () => (await band.findAll({ type: 'Button' })).map((b: any) => b.props.label).indexOf('┃')
+  const heavy = async () => (await band.findAll({ type: 'Button' })).map((b: any) => b.props.label).indexOf('▌')
   await clock.settle()
   expect(await heavy()).toBe(3)
   await quiet()
@@ -1708,7 +1708,7 @@ test('a running tool row first drawn at the bottom of the viewport does not take
 const mountRow = ($: any, requestId: string, text: string, onScreen: { first: number; last: number; of: number } | null) =>
   $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'UserMessage', requestId, props: prompt(text, onScreen) })
 
-const heavyIn = async (band: any) => (await band.findAll({ type: 'Button' })).map((b: any) => b.props.label).indexOf('┃')
+const heavyIn = async (band: any) => (await band.findAll({ type: 'Button' })).map((b: any) => b.props.label).indexOf('▌')
 
 const horizontalWorld = async ($: any, on: any, transcript = TRANSCRIPT) => {
   const disk = beneath(transcript)
