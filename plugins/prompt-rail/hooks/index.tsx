@@ -1219,6 +1219,16 @@ export const register: Register = (on, options) => {
         if (e.reason === 'aborted') ended.set(key, 'interrupted')
         if (e.reason === 'error') ended.set(key, 'error')
       }
+      // Local change (not upstream): a turn's end leaves the transcript at its
+      // newest rows, so the newest prompt is the one read, whatever rows said
+      // they were on screen before. Held like a jump: a scroll moves it again.
+      const newest = entries[entries.length - 1]
+      if (newest && viewAgent === undefined) {
+        const jump = landOn(newest.id, drawnRow(drawn, newest.id), entries.length - 1)
+        $.clock.after(SETTLE_MAX_MS, () => {
+          jump.isSettled = true
+        })
+      }
       await redrawRail($)
     }
     return result

@@ -262,6 +262,22 @@ test('with several prompts on screen only the topmost one is heavy', async ($, o
   expect(await band.find({ type: 'Text', text: /^#2 second prompt$/ })).toBeDefined()
 })
 
+// Local change (not upstream).
+test('a turn that ends leaves the newest prompt as the one being read, whatever rows said they were on screen', async ($, on) => {
+  mock.clock(on)
+  on('turn.complete', ($: any, e: any) => ({ text: e.answer }))
+  await drawPrompts($, on)
+  await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'UserMessage', requestId: 'm3', props: prompt('third prompt', null) })
+  await $.command.run({ command: 'prompt-rail', args: 'horizontal' })
+  const band = await $.ui.mount({ plugin: 'prompt-rail', surface: 'terminal', component: 'AbovePrompt', props: BAND })
+  const bars = async () => (await band.findAll({ type: 'Button' })).map(b => b.props.label)
+  // Only m2 said it is on screen: the rail reads the second prompt.
+  expect(await bars()).toEqual(['│', '┃', '│'])
+  await $.turn.complete({ answer: 'done', durationMs: 1000, isAborted: false, turnId: 't1', reason: 'answer' })
+  await band.redraw(BAND)
+  expect(await bars()).toEqual(['│', '│', '┃'])
+})
+
 // A transcript JSONL from rows given in order; each row's parent is the one
 // before it unless it names its own (`parentUuid`, null at a chain's root).
 const jsonl = (rows: Record<string, unknown>[]) =>
